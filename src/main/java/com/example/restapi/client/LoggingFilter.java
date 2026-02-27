@@ -9,9 +9,24 @@ import java.io.IOException;
 /**
  * A JAX-RS ClientRequestFilter that logs HTTP request details using SLF4J.
  * 
- * Usage:
- *   RestService client = new RestService();
- *   client.registerClientRequestFilter(new LoggingFilter());
+ * RestService has no built-in logging. Register this filter to enable request logging.
+ * This allows you to choose your own logging framework or disable logging entirely.
+ * 
+ * <b>Usage:</b>
+ * <pre>
+ * RestService client = RestServiceBuilder.create()
+ *     .registerFilter(new LoggingFilter())
+ *     .connectTimeout(5000)
+ *     .readTimeout(10000)
+ *     .build();
+ * </pre>
+ * 
+ * <b>Log levels:</b>
+ * <ul>
+ *   <li>INFO - Request method and URI</li>
+ *   <li>DEBUG - Request headers (sensitive headers masked)</li>
+ *   <li>DEBUG - Request body (truncated if > 500 chars)</li>
+ * </ul>
  */
 public class LoggingFilter implements ClientRequestFilter {
     private static final Logger LOG = LoggerFactory.getLogger(LoggingFilter.class);

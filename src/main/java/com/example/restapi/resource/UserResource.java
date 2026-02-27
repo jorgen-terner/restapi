@@ -32,7 +32,7 @@ public class UserResource
     */
    @GET
    @Path("/{id}")
-   public Response getUser(@PathParam("id") Integer userId)
+   public Response getUser(@PathParam("id") Long userId)
    {
       LOG.debug("Hämtar användare med ID: {}", userId);
       
@@ -43,7 +43,7 @@ public class UserResource
             .entity("Ogiltigt användar-ID").build();
       }
       
-      UserDto user = new UserDto(userId, "Test User " + userId, 
+      UserVO user = new UserVO(userId, "Test User " + userId, 
                                  "user" + userId + "@example.com");
       return Response.ok(user).build();
    }
@@ -55,7 +55,7 @@ public class UserResource
     * @return Skapad UserDto-objekt med genererat ID eller 400 vid validationsfel
     */
    @POST
-   public Response createUser(UserDto user)
+   public Response createUser(UserVO user)
    {
       LOG.debug("Skapar ny användare: {}", user);
       
@@ -73,7 +73,7 @@ public class UserResource
       }
       
       // Generera ett ID (i verklig app skulle detta komma från databas)
-      user.setId((int) (System.currentTimeMillis() % 100000));
+      user.setId(System.currentTimeMillis() % 100000);
       
       LOG.info("Användare skapad med ID: {}", user.getId());
       return Response.status(Response.Status.CREATED)

@@ -1,7 +1,9 @@
 package com.example.restapi.client;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
@@ -12,30 +14,40 @@ import jakarta.ws.rs.client.ClientRequestFilter;
  * 
  * Användning:
  * <pre>
- * // Med Jersey timeouts
+ * // Med standard timeouts
  * RestService service = RestServiceBuilder.create()
- *     .property("jersey.config.client.connectTimeout", 20000)
- *     .property("jersey.config.client.readTimeout", 20000)
+ *     .connectTimeout(20000)
+ *     .readTimeout(20000)
  *     .build();
  * 
- * // Med RESTEasy timeouts
+ * // Med anpassad felhantering
  * RestService service = RestServiceBuilder.create()
- *     .property("resteasy.property.name", value)
+ *     .errorHandler((status, body, uri) -> {
+ *         if (status == 404) throw new NotFoundException(uri);
+ *         if (status >= 500) throw new ServerException();
+ *     })
  *     .build();
  * 
- * // Default (no configuration)
- * RestService service = RestServiceBuilder.create().build();
+ * // Med filter och felhantering
+ * RestService service = RestServiceBuilder.create()
+ *     .registerFilter(new LoggingFilter())
+ *     .registerFilter(new StandardHeadersFilter(...))
+ *     .errorHandler(new CustomErrorHandler())
+ *     .connectTimeout(Duration.ofSeconds(10))
+ *     .build();
  * </pre>
  */
 public class RestServiceBuilder
 {
    private ClientBuilder clientBuilder;
    private final List<ClientRequestFilter> filters = new ArrayList<>();
+   private ErrorHandler errorHandler;
 
    private RestServiceBuilder()
    {
       // Använd reflection eller håll en map av properties för att undvika att exponera ClientBuilder
       this.clientBuilder = null;
+      this.errorHandler = new DefaultErrorHandler();
    }
 
    /**
@@ -49,14 +61,70 @@ public class RestServiceBuilder
    }
 
    /**
+    * Sätter connect timeout via underliggande ClientBuilder.
+    *
+    * @param millis Connect timeout i ms
+    * @return Denna builder (för method chaining)
+    */
+   public RestServiceBuilder connectTimeout(long millis)
+   {
+      if (clientBuilder == null)
+      {
+         clientBuilder = ClientBuilder.newBuilder();
+      }
+      clientBuilder.connectTimeout(millis, TimeUnit.MILLISECONDS);
+      return this;
+   }
+
+   /**
+    * Sätter connect timeout via underliggande ClientBuilder.
+    *
+    * @param duration Connect timeout
+    * @return Denna builder (för method chaining)
+    */
+   public RestServiceBuilder connectTimeout(Duration duration)
+   {
+      if (duration == null)
+      {
+         throw new IllegalArgumentException("duration must not be null");
+      }
+      return connectTimeout(duration.toMillis());
+   }
+
+   /**
+    * Sätter read timeout via underliggande ClientBuilder.
+    *
+    * @param millis Read timeout i ms
+    * @return Denna builder (för method chaining)
+    */
+   public RestServiceBuilder readTimeout(long millis)
+   {
+      if (clientBuilder == null)
+      {
+         clientBuilder = ClientBuilder.newBuilder();
+      }
+      clientBuilder.readTimeout(millis, TimeUnit.MILLISECONDS);
+      return this;
+   }
+
+   /**
+    * Sätter read timeout via underliggande ClientBuilder.
+    *
+    * @param duration Read timeout
+    * @return Denna builder (för method chaining)
+    */
+   public RestServiceBuilder readTimeout(Duration duration)
+   {
+      if (duration == null)
+      {
+         throw new IllegalArgumentException("duration must not be null");
+      }
+      return readTimeout(duration.toMillis());
+   }
+
+   /**
     * Sätter en property på den underliggande ClientBuilder.
     * Egenskapen appliceras enligt JAX-RS-implementeringens specifikation.
-    *
-    * <b>Jersey-egenskaper:</b>
-    * <ul>
-    *   <li>"jersey.config.client.connectTimeout" - Connect timeout i ms</li>
-    *   <li>"jersey.config.client.readTimeout" - Read timeout i ms</li>
-    * </ul>
     *
     * <b>RESTEasy-egenskaper:</b>
     * <ul>
@@ -104,6 +172,40 @@ public class RestServiceBuilder
    }
 
    /**
+    * Registrerar en ErrorHandler för anpassad felhantering.
+    * 
+    * ErrorHandlern anropas när en HTTP-response har en statuskod utanför 200-299.
+    * Om ingen ErrorHandler registreras används DefaultErrorHandler som kastar RuntimeException.
+    * 
+    * <b>Exempel - Custom error handling:</b>
+    * <pre>
+    * RestService service = RestServiceBuilder.create()
+    *     .errorHandler((statusCode, responseBody, uri) -> {
+    *         if (statusCode == 404) {
+    *             throw new NotFoundException("Not found: " + uri);
+    *         } else if (statusCode >= 500) {
+    *             throw new ServerException("Server error: " + statusCode);
+    *         } else {
+    *             throw new RestException("HTTP " + statusCode);
+    *         }
+    *     })
+    *     .build();
+    * </pre>
+    *
+    * @param handler ErrorHandlern som ska användas
+    * @return Denna builder (för method chaining)
+    */
+   public RestServiceBuilder errorHandler(ErrorHandler handler)
+   {
+      if (handler == null)
+      {
+         throw new IllegalArgumentException("errorHandler must not be null");
+      }
+      this.errorHandler = handler;
+      return this;
+   }
+
+   /**
     * Bygger och returnerar en ny RestService-instans baserat på konfigurationen.
     * Alla registrerade filter kommer att appliceras på denna Client.
     *
@@ -127,6 +229,6 @@ public class RestServiceBuilder
          client.register(filter);
       }
 
-      return new RestService(client);
+      return new RestService(client, errorHandler);
    }
 }

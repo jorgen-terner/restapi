@@ -82,7 +82,7 @@ import jakarta.enterprise.inject.Produces;
  * 
  * RestService service = RestServiceBuilder.create()
  *     .registerFilter(new StandardHeadersFilter(headers))
- *     .property("jersey.config.client.connectTimeout", 20000)
+ *     .connectTimeout(20000)
  *     .build();
  * </pre>
  * 
@@ -136,8 +136,8 @@ public class RestServiceProducer
       int readTimeout = getIntProperty("restclient.read.timeout", DEFAULT_READ_TIMEOUT);
 
       return RestServiceBuilder.create()
-         .property("jersey.config.client.connectTimeout", connectTimeout)
-         .property("jersey.config.client.readTimeout", readTimeout)
+         .connectTimeout(connectTimeout)
+         .readTimeout(readTimeout)
          .build();
    }
 

@@ -1,14 +1,15 @@
 # RestAPI – Java HTTP Client with JAX-RS Filter Support
 
-A lightweight REST client library built on `java.net.http.HttpClient` with support for `jakarta.ws.rs.client.ClientRequestFilter` for header manipulation, logging, and request interception.
+A lightweight REST client library built on the Jakarta JAX-RS Client API with support for `jakarta.ws.rs.client.ClientRequestFilter` for header manipulation, logging, and request interception.
 
 ## Features
 
-- **Pure Java HTTP Client**: Uses `java.net.http.HttpClient` without heavyweight JAX-RS implementations.
+- **JAX-RS Client API**: Implementation-agnostic client built with `jakarta.ws.rs.client.ClientBuilder`.
 - **JAX-RS Filter Support**: Register `ClientRequestFilter` instances to intercept and modify requests before sending.
-- **Easy Configuration**: Construct with custom connect/read timeouts.
+- **Easy Configuration**: Builder methods for connect/read timeouts (millis or `Duration`).
 - **Automatic Serialization**: JSON request/response serialization via Jackson `ObjectMapper`.
 - **Built-in Support**: GET, POST, PUT with JSON or byte payloads.
+- **No Built-in Logging**: RestService has no logging dependencies - add `LoggingFilter` if you need logging.
 
 ## Build & Run
 
@@ -30,13 +31,24 @@ java -jar build/libs/restapi-0.1.0-all.jar
 ### Basic REST Client
 
 ```java
-import infrastruktur.rest.RestService;
+import com.example.restapi.client.RestService;
+import com.example.restapi.client.RestServiceBuilder;
+import java.time.Duration;
 
-// Create with default timeouts (20s connect, 20s read)
-RestService client = new RestService();
+// Create with default settings
+RestService client = RestServiceBuilder.create().build();
 
-// Or with custom timeouts
-RestService client = new RestService(5000, 10000);  // 5s connect, 10s read
+// Or with custom timeouts (millis)
+RestService client = RestServiceBuilder.create()
+    .connectTimeout(5000)
+    .readTimeout(10000)
+    .build();
+
+// Or with custom timeouts (Duration)
+RestService client = RestServiceBuilder.create()
+    .connectTimeout(Duration.ofSeconds(5))
+    .readTimeout(Duration.ofSeconds(10))
+    .build();
 
 // GET request
 MyDto result = client.get("http://api.example.com/items/1", MyDto.class);
@@ -45,12 +57,13 @@ MyDto result = client.get("http://api.example.com/items/1", MyDto.class);
 Map<String, String> params = Map.of("page", "1", "size", "10");
 MyDto result = client.get("http://api.example.com/items", null, params, MyDto.class);
 
-// POST JSON
-String json = "{\"name\":\"John\",\"age\":30}";
-MyDto created = client.postJson("http://api.example.com/items", json, MyDto.class);
+// POST with object (converted to JSON automatically)
+MyDto requestData = new MyDto("John", 30);
+MyDto created = client.post("http://api.example.com/items", requestData, MyDto.class);
 
-// PUT JSON
-MyDto updated = client.putJson("http://api.example.com/items/1", json, MyDto.class);
+// PUT with object (converted to JSON automatically)
+MyDto updateData = new MyDto("Jane", 31);
+MyDto updated = client.put("http://api.example.com/items/1", updateData, MyDto.class);
 
 // POST binary data (base64 encoded)
 byte[] data = "...".getBytes();
@@ -65,16 +78,14 @@ client.close();
 
 ```java
 import jakarta.inject.Inject;
+import com.example.restapi.client.RestService;
+import com.example.restapi.client.RestServiceQualifier;
 
 @Component
 public class MyService {
-    private final RestService restClient;
-
     @Inject
-    public MyService() {
-        // Create with 5 second connect timeout, 15 second read timeout
-        this.restClient = new RestService(5000, 15000);
-    }
+    @RestServiceQualifier
+    private RestService restClient;
 
     public void fetchData() {
         MyDto data = restClient.get("http://api.example.com/data", MyDto.class);
@@ -83,13 +94,69 @@ public class MyService {
 }
 ```
 
+Configure timeouts via system properties:
+
+```
+-Drestclient.connect.timeout=5000
+-Drestclient.read.timeout=15000
+```
+
+### Custom Error Handling
+
+**RestService** uses an `ErrorHandler` to map HTTP errors to custom exceptions. By default, it throws `RuntimeException` for all errors. Register your own handler to customize error mapping:
+
+```java
+import com.example.restapi.client.RestService;
+import com.example.restapi.client.RestServiceBuilder;
+import com.example.restapi.client.ErrorHandler;
+
+// Simple lambda-based error handler
+RestService client = RestServiceBuilder.create()
+    .errorHandler((statusCode, responseBody, uri) -> {
+        switch (statusCode) {
+            case 401:
+                throw new UnauthorizedException("Not authenticated");
+            case 403:
+                throw new ForbiddenException("Access denied");
+            case 404:
+                throw new NotFoundException("Resource not found at " + uri);
+            case 500:
+            case 502:
+            case 503:
+                throw new ServerException("Server error: " + statusCode);
+            default:
+                throw new RestException("HTTP " + statusCode + ": " + responseBody);
+        }
+    })
+    .build();
+
+// Or implement ErrorHandler interface
+public class CustomErrorHandler implements ErrorHandler {
+    @Override
+    public void handleError(int statusCode, String responseBody, String uri) {
+        // Parse error response, log details, or customize behavior
+        if (statusCode >= 500) {
+            // Retry logic or circuit breaker here
+            throw new RetryableException("Server error, retry later");
+        }
+        throw new RestException("HTTP " + statusCode);
+    }
+}
+
+// Usage
+RestService client = RestServiceBuilder.create()
+    .errorHandler(new CustomErrorHandler())
+    .connectTimeout(Duration.ofSeconds(5))
+    .build();
+```
+
 ### Adding Request Headers via Filter
 
 ```java
 import jakarta.ws.rs.client.ClientRequestFilter;
 import java.util.UUID;
-
-RestService client = new RestService();
+import com.example.restapi.client.RestService;
+import com.example.restapi.client.RestServiceBuilder;
 
 // Simple lambda filter - add trace ID and authorization
 ClientRequestFilter authFilter = ctx -> {
@@ -97,13 +164,17 @@ ClientRequestFilter authFilter = ctx -> {
     ctx.getHeaders().add("Authorization", "Bearer your-token-here");
 };
 
-client.registerClientRequestFilter(authFilter);
+RestService client = RestServiceBuilder.create()
+    .registerFilter(authFilter)
+    .build();
 
 // All subsequent requests will include these headers
 MyDto result = client.get("http://api.example.com/items", MyDto.class);
 ```
 
 ### Comprehensive Logging Filter with SLF4J
+
+**Note**: `RestService` has no built-in logging. Register `LoggingFilter` to enable request/response logging.
 
 ```java
 import jakarta.ws.rs.client.ClientRequestFilter;
@@ -134,8 +205,9 @@ public class LoggingFilter implements ClientRequestFilter {
 }
 
 // Usage
-RestService client = new RestService();
-client.registerClientRequestFilter(new LoggingFilter());
+RestService client = RestServiceBuilder.create()
+    .registerFilter(new LoggingFilter())
+    .build();
 ```
 
 ### Chaining Multiple Filters
@@ -143,20 +215,20 @@ client.registerClientRequestFilter(new LoggingFilter());
 Filters execute in registration order—combine logging, auth, tracing:
 
 ```java
-RestService client = new RestService();
+RestService client = RestServiceBuilder.create()
+    // 1. Add tracing
+    .registerFilter(ctx -> 
+        ctx.getHeaders().add("X-Request-Id", UUID.randomUUID().toString())
+    )
 
-// 1. Add tracing
-client.registerClientRequestFilter(ctx -> 
-    ctx.getHeaders().add("X-Request-Id", UUID.randomUUID().toString())
-);
+    // 2. Add comprehensive logging
+    .registerFilter(new LoggingFilter())
 
-// 2. Add comprehensive logging
-client.registerClientRequestFilter(new LoggingFilter());
-
-// 3. Add authorization token
-client.registerClientRequestFilter(ctx -> 
-    ctx.getHeaders().add("Authorization", "Bearer " + getAuthToken())
-);
+    // 3. Add authorization token
+    .registerFilter(ctx -> 
+        ctx.getHeaders().add("Authorization", "Bearer " + getAuthToken())
+    )
+    .build();
 
 // All filters applied automatically
 MyDto result = client.get("http://api.example.com/items", MyDto.class);
@@ -192,31 +264,17 @@ try {
 }
 ```
 
-## Testing with Mock HttpClient
+### Testing with WireMock
 
-Inject a mock `HttpClient` for unit testing:
+See the integration tests for examples using WireMock:
 
-```java
-import org.mockito.Mockito;
-import java.net.http.HttpClient;
-import java.time.Duration;
-
-@Test
-void testRestServiceWithMock() {
-    HttpClient mockClient = Mockito.mock(HttpClient.class);
-    Duration timeout = Duration.ofSeconds(10);
-    
-    RestService service = new RestService(mockClient, timeout);
-    // Test using the mock client
-}
-```
+- [src/test/java/com/example/restapi/client/RestServiceWireMockTest.java](src/test/java/com/example/restapi/client/RestServiceWireMockTest.java)
 
 ## Architecture & Design Notes
 
-- **No Heavy Dependencies**: Uses only `java.net.http.HttpClient` and `jakarta.ws.rs-api` (interface only).
-- **Dynamic Proxy Pattern**: `ClientRequestFilter` compatibility via Java reflection proxy—no manual interface boilerplate.
-- **Thread-Safe Registry**: Filters stored in `CopyOnWriteArrayList` for safe concurrent registration.
-- **Timeout Control**: Both connect and read timeouts handled by `java.net.http.HttpClient`; implementation-specific timeouts can be set via filter properties.
+- **Implementation-Agnostic**: Uses `jakarta.ws.rs.client.ClientBuilder` under the hood.
+- **Filter Support**: `ClientRequestFilter` instances registered on the client.
+- **Timeout Control**: Connect/read timeouts via builder methods or implementation-specific properties.
 
 ## Dependencies
 
@@ -235,17 +293,17 @@ Test:
 ## Project Structure
 
 ```
-src/main/java/infrastruktur/rest/
+src/main/java/com/example/restapi/client/
 ├── RestService.java              # Main REST client
 └── ... (other classes)
 
-src/test/java/infrastruktur/rest/
-└── RestServiceTest.java          # Unit tests
+src/test/java/com/example/restapi/client/
+└── RestServiceWireMockTest.java  # Integration tests
 build.gradle                        # Gradle build config
 ```
 
 ## Notes
 
-- Timeout properties are stored internally; custom implementation-specific timeouts must be configured via registered filters or when constructing the underlying `HttpClient`.
+- Timeout properties can be configured via `RestServiceBuilder` methods or implementation-specific properties.
 - Response status codes outside 200–299 range throw `RuntimeException` with HTTP status and body details.
 - Entity serialization follows Jackson defaults; customize by configuring the `ObjectMapper` within `RestService` if needed.

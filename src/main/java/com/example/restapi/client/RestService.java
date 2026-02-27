@@ -5,9 +5,6 @@ import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.example.restapi.client.internal.RestClientMapperConfig;
@@ -26,25 +23,44 @@ import jakarta.ws.rs.core.Response;
  * 
  * Timeout-konfigurering sker genom RestServiceBuilder:
  * 
- * <b>Med Jersey:</b>
+ * <b>Med timeouts:</b>
  * <pre>
  * RestService service = RestServiceBuilder.create()
- *     .property("jersey.config.client.connectTimeout", 20000)
- *     .property("jersey.config.client.readTimeout", 20000)
- *     .build();
- * </pre>
- * 
- * <b>Med RESTEasy eller annat:</b>
- * <pre>
- * RestService service = RestServiceBuilder.create()
- *     // Sätt implementerings-specifika timeout properties
- *     .property("...", ...)
+ *     .connectTimeout(20000)
+ *     .readTimeout(20000)
  *     .build();
  * </pre>
  * 
  * <b>Med default settings:</b>
  * <pre>
  * RestService service = RestServiceBuilder.create().build();
+ * </pre>
+ * 
+ * <b>Med LoggingFilter:</b>
+ * <pre>
+ * RestService service = RestServiceBuilder.create()
+ *     .registerFilter(new LoggingFilter())
+ *     .build();
+ * </pre>
+ * 
+ * <b>Med anpassad felhantering:</b>
+ * <pre>
+ * RestService service = RestServiceBuilder.create()
+ *     .errorHandler((status, body, uri) -> {
+ *         if (status == 404) {
+ *             throw new NotFoundException("Not found at " + uri);
+ *         } else if (status >= 500) {
+ *             throw new ServerException("Server error: " + status);
+ *         }
+ *     })
+ *     .build();
+ * </pre>
+ * 
+ * <b>Med POST/PUT:</b>
+ * <pre>
+ * MyDto request = new MyDto("data");
+ * MyDto response = service.post("/api/items", request, MyDto.class);
+ * MyDto updated = service.put("/api/items/1", request, MyDto.class);
  * </pre>
  */
 
@@ -55,15 +71,14 @@ public class RestService implements AutoCloseable
     */
    public enum ByteEncoding
    {
-      BASE64, RAW, HEX
+      BASE64, RAW, HEX // TODO: HEX känns onödig
    }
-
-   private static final Logger LOG = LoggerFactory.getLogger(RestService.class);
 
    private final static RestClientMapperConfig MAPPER_CONFIG = new RestClientMapperConfig();
 
    private final Client client;
    private final ObjectMapper mapper;
+   private final ErrorHandler errorHandler;
 
    /**
     * Skapar en RestService med en default JAX-RS Client.
@@ -71,7 +86,7 @@ public class RestService implements AutoCloseable
     */
    public RestService()
    {
-      this(ClientBuilder.newClient());
+      this(ClientBuilder.newClient(), new DefaultErrorHandler());
    }
    
    /**
@@ -82,11 +97,24 @@ public class RestService implements AutoCloseable
     */
    RestService(Client client)
    {
-      this.client = client;
-      this.mapper = MAPPER_CONFIG.getAndConfigureObjectMapper();
+      this(client, new DefaultErrorHandler());
    }
 
-   // Finns standardfunktionalitet i apache httpclient men värt att dra in det beroendet?
+   /**
+    * Paket-privat konstruktor för internt bruk.
+    * Användare bör använda RestServiceBuilder istället.
+    *
+    * @param client En JAX-RS Client konfigurerad enligt din JAX-RS providers specifikation
+    * @param errorHandler En ErrorHandler för anpassad felhantering
+    */
+   RestService(Client client, ErrorHandler errorHandler)
+   {
+      this.client = client;
+      this.mapper = MAPPER_CONFIG.getAndConfigureObjectMapper();
+      this.errorHandler = errorHandler != null ? errorHandler : new DefaultErrorHandler();
+   }
+
+   // TODO: Finns standardfunktionalitet i apache httpclient men värt att dra in det beroendet?
    private String appendQueryParams(String url, Map<String, String> queryParams)
    {
       if ((queryParams == null) || queryParams.isEmpty())
@@ -133,7 +161,6 @@ public class RestService implements AutoCloseable
    private WebTarget prepareWebTarget(String url, Map<String, String> queryParams)
    {
       String fullUrl = appendQueryParams(url, queryParams);
-      LOG.debug("Preparing request to: {}", fullUrl);
       return client.target(fullUrl);
    }
 
@@ -142,8 +169,6 @@ public class RestService implements AutoCloseable
    {
       try
       {
-         LOG.debug("{} request to: {}", method, target.getUri());
-         
          var requestBuilder = target.request(MediaType.APPLICATION_JSON);
          
          // Lägg till custom headers
@@ -154,13 +179,12 @@ public class RestService implements AutoCloseable
                if (h.getKey() != null && h.getValue() != null)
                {
                   requestBuilder = requestBuilder.header(h.getKey(), h.getValue());
-                  LOG.trace("  Header: {} = {}", h.getKey(), h.getValue());
                }
             }
          }
          
          // Content-Type för requests med body
-         if (contentType != null && body != null)
+         if ((contentType != null) && (body != null))
          {
             requestBuilder = requestBuilder.header(HttpHeaders.CONTENT_TYPE, contentType);
          }
@@ -182,18 +206,17 @@ public class RestService implements AutoCloseable
          }
          
          int status = response.getStatus();
-         LOG.debug("{} response status: {}", method, status);
          
          if ((status >= 200) && (status < 300))
          {
             String responseBody = response.readEntity(String.class);
-            LOG.trace("{} response body: {}", method, responseBody);
             return mapper.readValue(responseBody, clazz);
          }
          
          String errorBody = response.readEntity(String.class);
-         LOG.warn("{} upstream error: {} - {}", method, status, errorBody);
-         throw new RuntimeException("Upstream error: " + status);
+         errorHandler.handleError(status, errorBody, target.getUri().toString());
+         //  Om errorhandlern inte kastade exception antar vi att den hanterade felet
+         return null;
       }
       catch (RuntimeException e)
       {
@@ -201,7 +224,6 @@ public class RestService implements AutoCloseable
       }
       catch (Exception e)
       {
-         LOG.error("{} request failed", method, e);
          throw new RuntimeException(e);
       }
    }
@@ -217,37 +239,88 @@ public class RestService implements AutoCloseable
       return get(url, null, null, clazz);
    }
 
-   public <T> T postJson(String url, String json, Map<String, String> headers, Map<String, String> queryParams, Class<T> clazz)
+   /**
+    * Skickar ett POST-request med ett objekt som JSON.
+    * Objektet konverteras till JSON automatiskt med ObjectMapper.
+    *
+    * @param url Request-URIn
+    * @param body Objektet som ska skickas som JSON
+    * @param headers Custom headers eller null
+    * @param queryParams Query-parametrar eller null
+    * @param clazz Klassen för response-objektet
+    * @return Det deserialiserade response-objektet
+    */
+   public <T> T post(String url, Object body, Map<String, String> headers, Map<String, String> queryParams, Class<T> clazz)
    {
-      WebTarget target = prepareWebTarget(url, queryParams);
-      LOG.trace("POST request body: {}", json);
-      return executeRequest(target, "POST", MediaType.APPLICATION_JSON, json, headers, clazz);
+      try
+      {
+         String json = mapper.writeValueAsString(body);
+         WebTarget target = prepareWebTarget(url, queryParams);
+         return executeRequest(target, "POST", MediaType.APPLICATION_JSON, json, headers, clazz);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 
-   public <T> T postJson(String url, String json, Class<T> clazz)
+   /**
+    * Skickar ett POST-request med ett objekt som JSON.
+    * Objektet konverteras till JSON automatiskt med ObjectMapper.
+    *
+    * @param url Request-URIn
+    * @param body Objektet som ska skickas som JSON
+    * @param clazz Klassen för response-objektet
+    * @return Det deserialiserade response-objektet
+    */
+   public <T> T post(String url, Object body, Class<T> clazz)
    {
-      return postJson(url, json, null, null, clazz);
+      return post(url, body, null, null, clazz);
    }
 
-   public <T> T putJson(String url, String json, Map<String, String> headers, Map<String, String> queryParams, Class<T> clazz)
+   /**
+    * Skickar ett PUT-request med ett objekt som JSON.
+    * Objektet konverteras till JSON automatiskt med ObjectMapper.
+    *
+    * @param url Request-URIn
+    * @param body Objektet som ska skickas som JSON
+    * @param headers Custom headers eller null
+    * @param queryParams Query-parametrar eller null
+    * @param clazz Klassen för response-objektet
+    * @return Det deserialiserade response-objektet
+    */
+   public <T> T put(String url, Object body, Map<String, String> headers, Map<String, String> queryParams, Class<T> clazz)
    {
-      WebTarget target = prepareWebTarget(url, queryParams);
-      LOG.trace("PUT request body: {}", json);
-      return executeRequest(target, "PUT", MediaType.APPLICATION_JSON, json, headers, clazz);
+      try
+      {
+         String json = mapper.writeValueAsString(body);
+         WebTarget target = prepareWebTarget(url, queryParams);
+         return executeRequest(target, "PUT", MediaType.APPLICATION_JSON, json, headers, clazz);
+      }
+      catch (Exception e)
+      {
+         throw new RuntimeException(e);
+      }
    }
 
-   public <T> T putJson(String url, String json, Class<T> clazz)
+   /**
+    * Skickar ett PUT-request med ett objekt som JSON.
+    * Objektet konverteras till JSON automatiskt med ObjectMapper.
+    *
+    * @param url Request-URIn
+    * @param body Objektet som ska skickas som JSON
+    * @param clazz Klassen för response-objektet
+    * @return Det deserialiserade response-objektet
+    */
+   public <T> T put(String url, Object body, Class<T> clazz)
    {
-      return putJson(url, json, null, null, clazz);
+      return put(url, body, null, null, clazz);
    }
 
    public <T> T postBytes(String url, byte[] data, ByteEncoding encoding, Map<String, String> headers,
          Map<String, String> queryParams, Class<T> clazz)
    {
       String encodedData = encodeBytes(data, encoding);
-      LOG.debug("POST bytes request to: {} (encoding: {})", url, encoding);
-      LOG.trace("POST request body length: {}", data.length);
-      
       String contentType = encoding == ByteEncoding.BASE64 ? MediaType.APPLICATION_OCTET_STREAM : MediaType.TEXT_PLAIN;
       WebTarget target = prepareWebTarget(url, queryParams);
       return executeRequest(target, "POST", contentType, encodedData, headers, clazz);
@@ -262,9 +335,6 @@ public class RestService implements AutoCloseable
          Map<String, String> queryParams, Class<T> clazz)
    {
       String encodedData = encodeBytes(data, encoding);
-      LOG.debug("PUT bytes request to: {} (encoding: {})", url, encoding);
-      LOG.trace("PUT request body length: {}", data.length);
-      
       String contentType = encoding == ByteEncoding.BASE64 ? MediaType.APPLICATION_OCTET_STREAM : MediaType.TEXT_PLAIN;
       WebTarget target = prepareWebTarget(url, queryParams);
       return executeRequest(target, "PUT", contentType, encodedData, headers, clazz);
@@ -283,12 +353,11 @@ public class RestService implements AutoCloseable
          if (client != null)
          {
             client.close();
-            LOG.debug("JAX-RS Client closed");
          }
       }
       catch (Exception e)
       {
-         LOG.warn("Failed to close JAX-RS Client", e);
+         // Silent cleanup - log via filter if needed
       }
    }
 }

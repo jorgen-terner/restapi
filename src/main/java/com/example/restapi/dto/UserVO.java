@@ -3,15 +3,15 @@ package com.example.restapi.dto;
 /**
  * Data Transfer Object for User data.
  */
-public class UserDto {
+public class UserVO {
     private Long id;
     private String name;
     private String email;
 
-    public UserDto() {
+    public UserVO() {
     }
 
-    public UserDto(Long id, String name, String email) {
+    public UserVO(Long id, String name, String email) {
         this.id = id;
         this.name = name;
         this.email = email;

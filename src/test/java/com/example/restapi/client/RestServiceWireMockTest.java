@@ -1,7 +1,7 @@
 package com.example.restapi.client;
 
-import com.example.restapi.dto.UserDto;
-import com.example.restapi.dto.DataWithDateDto;
+import com.example.restapi.dto.UserVO;
+import com.example.restapi.dto.DataWithDateVO;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -42,8 +42,8 @@ public class RestServiceWireMockTest {
 
         // Create RestService pointing to mock server
         restService = RestServiceBuilder.create()
-            .property("jersey.config.client.connectTimeout", 5000)
-            .property("jersey.config.client.readTimeout", 5000)
+            .connectTimeout(5000)
+            .readTimeout(5000)
             .build();
 
         // Setup ObjectMapper for JSON serialization
@@ -64,7 +64,7 @@ public class RestServiceWireMockTest {
 
     @Test
     void testGetRequestWithUrlEncodingSpecialCharacters() {
-        UserDto mockUser = new UserDto(1L, "John Doe & Co.", "john@example.com");
+        UserVO mockUser = new UserVO(1L, "John Doe & Co.", "john@example.com");
         
         // Setup mock server stub
         stubFor(get(urlMatching(".*search.*"))
@@ -74,11 +74,11 @@ public class RestServiceWireMockTest {
                 .withBody(toJson(mockUser))));
 
         // Make actual HTTP request through RestService
-        UserDto result = restService.get(
+        UserVO result = restService.get(
             baseUrl + "/api/users/search",
             null,
             Map.of("name", "John Doe & Co."),
-            UserDto.class
+            UserVO.class
         );
 
         // Verify response
@@ -89,7 +89,7 @@ public class RestServiceWireMockTest {
 
     @Test
     void testGetRequestWithSwedishCharactersInQueryParam() {
-        UserDto mockUser = new UserDto(2L, "Åsa Öberg", "asa@example.com");
+        UserVO mockUser = new UserVO(2L, "Åsa Öberg", "asa@example.com");
         
         stubFor(get(urlMatching(".*search.*"))
             .willReturn(aResponse()
@@ -97,11 +97,11 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(mockUser))));
 
-        UserDto result = restService.get(
+        UserVO result = restService.get(
             baseUrl + "/api/users/search",
             null,
             Map.of("name", "Åsa Öberg"),
-            UserDto.class
+            UserVO.class
         );
 
         assertNotNull(result);
@@ -110,7 +110,7 @@ public class RestServiceWireMockTest {
 
     @Test
     void testGetRequestWithEmailAddressSpecialCharacters() {
-        UserDto mockUser = new UserDto(3L, "Jane Doe", "jane+test@example.com");
+        UserVO mockUser = new UserVO(3L, "Jane Doe", "jane+test@example.com");
         
         stubFor(get(urlMatching(".*search.*"))
             .willReturn(aResponse()
@@ -118,11 +118,11 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(mockUser))));
 
-        UserDto result = restService.get(
+        UserVO result = restService.get(
             baseUrl + "/api/users/search",
             null,
             Map.of("email", "jane+test@example.com"),
-            UserDto.class
+            UserVO.class
         );
 
         assertNotNull(result);
@@ -133,7 +133,10 @@ public class RestServiceWireMockTest {
     void testGetRequestWithMultipleQueryParameters() {
         String mockResponse = "{\"page\":1,\"limit\":10,\"total\":100}";
         
-        stubFor(get(urlMatching(".*users.*"))
+        // Stub only matches if query parameters are present and correct
+        stubFor(get(urlPathEqualTo("/api/users"))
+            .withQueryParam("page", equalTo("1"))
+            .withQueryParam("limit", equalTo("10"))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
@@ -150,12 +153,17 @@ public class RestServiceWireMockTest {
         assertEquals(1, result.get("page"));
         assertEquals(10, result.get("limit"));
         assertEquals(100, result.get("total"));
+        
+        // Verify the request was made with correct query parameters
+        verify(getRequestedFor(urlPathEqualTo("/api/users"))
+            .withQueryParam("page", equalTo("1"))
+            .withQueryParam("limit", equalTo("10")));
     }
 
     @Test
     void testPostJsonRequest() {
-        UserDto requestData = new UserDto(null, "New User", "new@example.com");
-        UserDto mockResponse = new UserDto(5L, "New User", "new@example.com");
+        UserVO requestData = new UserVO(null, "New User", "new@example.com");
+        UserVO mockResponse = new UserVO(5L, "New User", "new@example.com");
         
         stubFor(post(urlMatching(".*users.*"))
             .willReturn(aResponse()
@@ -163,10 +171,10 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(mockResponse))));
 
-        UserDto result = restService.postJson(
+        UserVO result = restService.post(
             baseUrl + "/api/users",
-            toJson(requestData),
-            UserDto.class
+            requestData,
+            UserVO.class
         );
 
         assertNotNull(result);
@@ -176,8 +184,8 @@ public class RestServiceWireMockTest {
 
     @Test
     void testPutJsonRequest() {
-        UserDto updateData = new UserDto(6L, "Updated User", "updated@example.com");
-        UserDto mockResponse = new UserDto(6L, "Updated User", "updated@example.com");
+        UserVO updateData = new UserVO(6L, "Updated User", "updated@example.com");
+        UserVO mockResponse = new UserVO(6L, "Updated User", "updated@example.com");
         
         stubFor(put(urlMatching(".*users/6.*"))
             .willReturn(aResponse()
@@ -185,10 +193,10 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(mockResponse))));
 
-        UserDto result = restService.putJson(
+        UserVO result = restService.put(
             baseUrl + "/api/users/6",
-            toJson(updateData),
-            UserDto.class
+            updateData,
+            UserVO.class
         );
 
         assertNotNull(result);
@@ -198,7 +206,7 @@ public class RestServiceWireMockTest {
 
     @Test
     void testGetRequestWithCustomHeaders() {
-        UserDto mockUser = new UserDto(4L, "Test User", "test@example.com");
+        UserVO mockUser = new UserVO(4L, "Test User", "test@example.com");
         
         stubFor(get(urlMatching(".*users/4.*"))
             .willReturn(aResponse()
@@ -206,14 +214,14 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(mockUser))));
 
-        UserDto result = restService.get(
+        UserVO result = restService.get(
             baseUrl + "/api/users/4",
             Map.of(
                 "Authorization", "Bearer token123",
                 "X-Custom-Header", "custom-value"
             ),
             null,
-            UserDto.class
+            UserVO.class
         );
 
         assertNotNull(result);
@@ -287,7 +295,7 @@ public class RestServiceWireMockTest {
 
     @Test
     void testGetRequestWithDateDeserialization() {
-        DataWithDateDto mockData = new DataWithDateDto(
+        DataWithDateVO mockData = new DataWithDateVO(
             1L,
             "Test Data",
             LocalDate.of(2024, 1, 15),
@@ -300,11 +308,11 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(mockData))));
 
-        DataWithDateDto result = restService.get(
+        DataWithDateVO result = restService.get(
             baseUrl + "/api/data/1",
             null,
             null,
-            DataWithDateDto.class
+            DataWithDateVO.class
         );
 
         assertNotNull(result);
@@ -320,7 +328,7 @@ public class RestServiceWireMockTest {
                 .withBody("{\"error\":\"Not found\"}")));
 
         assertThrows(RuntimeException.class, () ->
-            restService.get(baseUrl + "/api/nonexistent", null, null, UserDto.class)
+            restService.get(baseUrl + "/api/nonexistent", null, null, UserVO.class)
         );
     }
 
@@ -332,8 +340,96 @@ public class RestServiceWireMockTest {
                 .withBody("{\"error\":\"Internal server error\"}")));
 
         assertThrows(RuntimeException.class, () ->
-            restService.get(baseUrl + "/api/error", null, null, UserDto.class)
+            restService.get(baseUrl + "/api/error", null, null, UserVO.class)
         );
+    }
+
+    @Test
+    void testDefaultErrorHandlerIsUsedWhenNotConfigured() {
+        stubFor(get(urlMatching(".*teapot.*"))
+            .willReturn(aResponse()
+                .withStatus(418)
+                .withBody("{\"error\":\"I'm a teapot\"}")));
+
+        RestService defaultService = RestServiceBuilder.create().build();
+
+        try {
+            RuntimeException ex = assertThrows(RuntimeException.class, () ->
+                defaultService.get(baseUrl + "/api/teapot", null, null, UserVO.class)
+            );
+
+            assertTrue(ex.getMessage().contains("Upstream error: 418"));
+        } finally {
+            defaultService.close();
+        }
+    }
+
+    @Test
+    void testErrorHandlerExceptionTypeIsPropagated() {
+        stubFor(get(urlMatching(".*custom-ex.*"))
+            .willReturn(aResponse()
+                .withStatus(400)
+                .withBody("{\"error\":\"Bad request\"}")));
+
+        KnownException known = new KnownException("Custom error");
+        RestService customService = RestServiceBuilder.create()
+            .errorHandler(new FixedExceptionErrorHandler(known))
+            .build();
+
+        try {
+            KnownException thrown = assertThrows(KnownException.class, () ->
+                customService.get(baseUrl + "/api/custom-ex", null, null, UserVO.class)
+            );
+
+            assertSame(known, thrown);
+        } finally {
+            customService.close();
+        }
+    }
+
+    @Test
+    void testCustomErrorHandlerMapsErrors() {
+        stubFor(get(urlMatching(".*notfound.*"))
+            .willReturn(aResponse()
+                .withStatus(404)
+                .withBody("{\"error\":\"Not found\"}")));
+
+        RestService customService = RestServiceBuilder.create()
+            .errorHandler(new CapturingErrorHandler())
+            .build();
+
+        try {
+            TestErrorException ex = assertThrows(TestErrorException.class, () ->
+                customService.get(baseUrl + "/api/notfound", null, null, UserVO.class)
+            );
+
+            assertEquals(404, ex.getStatusCode());
+            assertEquals("{\"error\":\"Not found\"}", ex.getResponseBody());
+            assertTrue(ex.getUri().endsWith("/api/notfound"));
+        } finally {
+            customService.close();
+        }
+    }
+
+    @Test
+    void testErrorHandlerCanSuppressErrors() {
+        stubFor(get(urlMatching(".*suppressed.*"))
+            .willReturn(aResponse()
+                .withStatus(503)
+                .withBody("{\"error\":\"Service unavailable\"}")));
+
+        SwallowingErrorHandler handler = new SwallowingErrorHandler();
+        RestService customService = RestServiceBuilder.create()
+            .errorHandler(handler)
+            .build();
+
+        try {
+            UserVO result = customService.get(baseUrl + "/api/suppressed", null, null, UserVO.class);
+            assertNull(result);
+            assertEquals(1, handler.getCount());
+        } finally {
+            customService.close();
+        }
     }
 
     @Test
@@ -361,8 +457,8 @@ public class RestServiceWireMockTest {
         assertEquals("User1", userList.get(0).get("name"));
 
         // Step 2: UPDATE a user
-        UserDto updateRequest = new UserDto(1L, "Updated User1", "updated1@example.com");
-        UserDto updateResponse = new UserDto(1L, "Updated User1", "updated1@example.com");
+        UserVO updateRequest = new UserVO(1L, "Updated User1", "updated1@example.com");
+        UserVO updateResponse = new UserVO(1L, "Updated User1", "updated1@example.com");
         
         stubFor(put(urlMatching(".*users/1.*"))
             .willReturn(aResponse()
@@ -370,10 +466,10 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(updateResponse))));
 
-        UserDto updated = restService.putJson(
+        UserVO updated = restService.put(
             baseUrl + "/api/users/1",
-            toJson(updateRequest),
-            UserDto.class
+            updateRequest,
+            UserVO.class
         );
 
         assertNotNull(updated);
@@ -386,11 +482,11 @@ public class RestServiceWireMockTest {
                 .withHeader("Content-Type", "application/json")
                 .withBody(toJson(updateResponse))));
 
-        UserDto verified = restService.get(
+        UserVO verified = restService.get(
             baseUrl + "/api/users/1",
             null,
             null,
-            UserDto.class
+            UserVO.class
         );
 
         assertNotNull(verified);
@@ -406,6 +502,70 @@ public class RestServiceWireMockTest {
             return objectMapper.writeValueAsString(obj);
         } catch (Exception e) {
             throw new RuntimeException("Failed to serialize to JSON", e);
+        }
+    }
+
+    private static class CapturingErrorHandler implements ErrorHandler {
+        @Override
+        public void handleError(int statusCode, String responseBody, String uri) {
+            throw new TestErrorException(statusCode, responseBody, uri);
+        }
+    }
+
+    private static class SwallowingErrorHandler implements ErrorHandler {
+        private int count;
+
+        @Override
+        public void handleError(int statusCode, String responseBody, String uri) {
+            count++;
+        }
+
+        int getCount() {
+            return count;
+        }
+    }
+
+    private static class FixedExceptionErrorHandler implements ErrorHandler {
+        private final RuntimeException exception;
+
+        FixedExceptionErrorHandler(RuntimeException exception) {
+            this.exception = exception;
+        }
+
+        @Override
+        public void handleError(int statusCode, String responseBody, String uri) {
+            throw exception;
+        }
+    }
+
+    private static class TestErrorException extends RuntimeException {
+        private final int statusCode;
+        private final String responseBody;
+        private final String uri;
+
+        TestErrorException(int statusCode, String responseBody, String uri) {
+            super("HTTP " + statusCode + " for " + uri);
+            this.statusCode = statusCode;
+            this.responseBody = responseBody;
+            this.uri = uri;
+        }
+
+        int getStatusCode() {
+            return statusCode;
+        }
+
+        String getResponseBody() {
+            return responseBody;
+        }
+
+        String getUri() {
+            return uri;
+        }
+    }
+
+    private static class KnownException extends RuntimeException {
+        KnownException(String message) {
+            super(message);
         }
     }
 }

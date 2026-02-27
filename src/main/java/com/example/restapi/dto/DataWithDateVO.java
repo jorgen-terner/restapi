@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 /**
  * Data Transfer Object containing date fields for testing date formatting.
  */
-public class DataWithDateDto {
+public class DataWithDateVO {
     private Long id;
     private String description;
 
@@ -18,10 +18,10 @@ public class DataWithDateDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime modifiedDate;
 
-    public DataWithDateDto() {
+    public DataWithDateVO() {
     }
 
-    public DataWithDateDto(Long id, String description, LocalDate createdDate, LocalDateTime modifiedDate) {
+    public DataWithDateVO(Long id, String description, LocalDate createdDate, LocalDateTime modifiedDate) {
         this.id = id;
         this.description = description;
         this.createdDate = createdDate;
