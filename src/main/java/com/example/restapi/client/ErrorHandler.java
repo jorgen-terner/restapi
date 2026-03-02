@@ -52,4 +52,24 @@ public interface ErrorHandler
     * @throws RuntimeException eller annan exception för att indikera ett fel
     */
    void handleError(int statusCode, String responseBody, String uri) throws RuntimeException;
+
+   /**
+    * Hanterar exceptions som uppstår under request/response-hantering.
+    *
+    * Denna metod anropas för tekniska fel såsom serialisering, deserialisering,
+    * anslutningsproblem eller andra oväntade exceptions.
+    *
+    * Default-beteendet är att kasta exception vidare. Checked exceptions wrappas i RuntimeException.
+    *
+    * @param exception Exception som uppstod
+    * @param uri Request-URIn om tillgänglig, annars null
+    */
+   default void handleException(Exception exception, String uri)
+   {
+      if (exception instanceof RuntimeException)
+      {
+         throw (RuntimeException)exception;
+      }
+      throw new RuntimeException(exception);
+   }
 }

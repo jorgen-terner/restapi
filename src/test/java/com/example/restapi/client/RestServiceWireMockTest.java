@@ -433,6 +433,33 @@ public class RestServiceWireMockTest {
     }
 
     @Test
+    void testSerializationExceptionIsDelegatedToErrorHandler() {
+        String url = baseUrl + "/api/serialize-error";
+
+        java.util.Map<String, Object> cyclic = new java.util.HashMap<>();
+        cyclic.put("self", cyclic);
+
+        ExceptionDelegatingErrorHandler handler = new ExceptionDelegatingErrorHandler();
+        RestService customService = RestServiceBuilder.create()
+            .errorHandler(handler)
+            .build();
+
+        try {
+            KnownException thrown = assertThrows(KnownException.class, () ->
+                customService.post(url, cyclic, UserVO.class)
+            );
+
+            assertEquals("Serialization delegated", thrown.getMessage());
+            assertEquals(1, handler.getCount());
+            assertNotNull(handler.getLastException());
+            assertTrue(handler.getLastException() instanceof com.fasterxml.jackson.core.JsonProcessingException);
+            assertEquals(url, handler.getLastUri());
+        } finally {
+            customService.close();
+        }
+    }
+
+    @Test
     void testCompleteWorkflowGetUpdateGet() {
         // Step 1: GET user list as JSON array
         String listBody = "[{\"id\":1,\"name\":\"User1\",\"email\":\"user1@example.com\"}," +
@@ -535,6 +562,37 @@ public class RestServiceWireMockTest {
         @Override
         public void handleError(int statusCode, String responseBody, String uri) {
             throw exception;
+        }
+    }
+
+    private static class ExceptionDelegatingErrorHandler implements ErrorHandler {
+        private int count;
+        private Exception lastException;
+        private String lastUri;
+
+        @Override
+        public void handleError(int statusCode, String responseBody, String uri) {
+            throw new AssertionError("handleError should not be called for serialization failures");
+        }
+
+        @Override
+        public void handleException(Exception exception, String uri) {
+            count++;
+            lastException = exception;
+            lastUri = uri;
+            throw new KnownException("Serialization delegated");
+        }
+
+        int getCount() {
+            return count;
+        }
+
+        Exception getLastException() {
+            return lastException;
+        }
+
+        String getLastUri() {
+            return lastUri;
         }
     }
 

@@ -202,7 +202,9 @@ public class RestService implements AutoCloseable
                response = requestBuilder.put(jakarta.ws.rs.client.Entity.text(body));
                break;
             default:
-               throw new IllegalArgumentException("Unsupported method: " + method);
+               errorHandler.handleException(new IllegalArgumentException("Unsupported method: " + method),
+                     target.getUri().toString());
+               return null;
          }
          
          int status = response.getStatus();
@@ -218,13 +220,10 @@ public class RestService implements AutoCloseable
          //  Om errorhandlern inte kastade exception antar vi att den hanterade felet
          return null;
       }
-      catch (RuntimeException e)
-      {
-         throw e;
-      }
       catch (Exception e)
       {
-         throw new RuntimeException(e);
+         errorHandler.handleException(e, target != null ? target.getUri().toString() : null);
+         return null;
       }
    }
 
@@ -260,7 +259,8 @@ public class RestService implements AutoCloseable
       }
       catch (Exception e)
       {
-         throw new RuntimeException(e);
+         errorHandler.handleException(e, url);
+         return null;
       }
    }
 
@@ -299,7 +299,8 @@ public class RestService implements AutoCloseable
       }
       catch (Exception e)
       {
-         throw new RuntimeException(e);
+         errorHandler.handleException(e, url);
+         return null;
       }
    }
 

@@ -12,4 +12,14 @@ public class DefaultErrorHandler implements ErrorHandler
    {
       throw new RuntimeException("Upstream error: " + statusCode);
    }
+
+   @Override
+   public void handleException(Exception exception, String uri)
+   {
+      if (exception instanceof RuntimeException)
+      {
+         throw (RuntimeException)exception;
+      }
+      throw new RuntimeException("Request failed" + (uri != null ? " for " + uri : ""), exception);
+   }
 }
