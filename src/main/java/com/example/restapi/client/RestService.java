@@ -165,7 +165,7 @@ public class RestService implements AutoCloseable
    }
 
    private <T> T executeRequest(WebTarget target, String method, String contentType, 
-                                String body, Map<String, String> headers, Class<T> clazz)
+                                Object body, Map<String, String> headers, Class<T> clazz)
    {
       try
       {
@@ -195,6 +195,66 @@ public class RestService implements AutoCloseable
             case "GET":
                response = requestBuilder.get();
                break;
+            case "POST":
+               response = requestBuilder.post(jakarta.ws.rs.client.Entity.entity(body, contentType != null ? contentType : MediaType.APPLICATION_JSON));
+               break;
+            case "PUT":
+               response = requestBuilder.put(jakarta.ws.rs.client.Entity.entity(body, contentType != null ? contentType : MediaType.APPLICATION_JSON));
+               break;
+            default:
+               errorHandler.handleException(new IllegalArgumentException("Unsupported method: " + method),
+                     target.getUri().toString());
+               return null;
+         }
+         
+         int status = response.getStatus();
+         
+         if ((status >= 200) && (status < 300))
+         {
+            String responseBody = response.readEntity(String.class);
+            return mapper.readValue(responseBody, clazz);
+         }
+         
+         String errorBody = response.readEntity(String.class);
+         errorHandler.handleError(status, errorBody, target.getUri().toString());
+         //  Om errorhandlern inte kastade exception antar vi att den hanterade felet
+         return null;
+      }
+      catch (Exception e)
+      {
+         errorHandler.handleException(e, target != null ? target.getUri().toString() : null);
+         return null;
+      }
+   }
+
+   private <T> T executeStringRequest(WebTarget target, String method, String contentType, 
+                                      String body, Map<String, String> headers, Class<T> clazz)
+   {
+      try
+      {
+         var requestBuilder = target.request(MediaType.APPLICATION_JSON);
+         
+         // Lägg till custom headers
+         if (headers != null)
+         {
+            for (Map.Entry<String, String> h : headers.entrySet())
+            {
+               if (h.getKey() != null && h.getValue() != null)
+               {
+                  requestBuilder = requestBuilder.header(h.getKey(), h.getValue());
+               }
+            }
+         }
+         
+         // Content-Type för requests med body
+         if ((contentType != null) && (body != null))
+         {
+            requestBuilder = requestBuilder.header(HttpHeaders.CONTENT_TYPE, contentType);
+         }
+         
+         Response response;
+         switch (method.toUpperCase())
+         {
             case "POST":
                response = requestBuilder.post(jakarta.ws.rs.client.Entity.text(body));
                break;
@@ -251,17 +311,17 @@ public class RestService implements AutoCloseable
     */
    public <T> T post(String url, Object body, Map<String, String> headers, Map<String, String> queryParams, Class<T> clazz)
    {
+      WebTarget target;
       try
       {
-         String json = mapper.writeValueAsString(body);
-         WebTarget target = prepareWebTarget(url, queryParams);
-         return executeRequest(target, "POST", MediaType.APPLICATION_JSON, json, headers, clazz);
+         target = prepareWebTarget(url, queryParams);
       }
       catch (Exception e)
       {
          errorHandler.handleException(e, url);
          return null;
       }
+      return executeRequest(target, "POST", MediaType.APPLICATION_JSON, body, headers, clazz);
    }
 
    /**
@@ -291,17 +351,17 @@ public class RestService implements AutoCloseable
     */
    public <T> T put(String url, Object body, Map<String, String> headers, Map<String, String> queryParams, Class<T> clazz)
    {
+      WebTarget target;
       try
       {
-         String json = mapper.writeValueAsString(body);
-         WebTarget target = prepareWebTarget(url, queryParams);
-         return executeRequest(target, "PUT", MediaType.APPLICATION_JSON, json, headers, clazz);
+         target = prepareWebTarget(url, queryParams);
       }
       catch (Exception e)
       {
          errorHandler.handleException(e, url);
          return null;
       }
+      return executeRequest(target, "PUT", MediaType.APPLICATION_JSON, body, headers, clazz);
    }
 
    /**
@@ -324,7 +384,7 @@ public class RestService implements AutoCloseable
       String encodedData = encodeBytes(data, encoding);
       String contentType = encoding == ByteEncoding.BASE64 ? MediaType.APPLICATION_OCTET_STREAM : MediaType.TEXT_PLAIN;
       WebTarget target = prepareWebTarget(url, queryParams);
-      return executeRequest(target, "POST", contentType, encodedData, headers, clazz);
+      return executeStringRequest(target, "POST", contentType, encodedData, headers, clazz);
    }
 
    public <T> T postBytes(String url, byte[] data, ByteEncoding encoding, Class<T> clazz)
@@ -338,7 +398,7 @@ public class RestService implements AutoCloseable
       String encodedData = encodeBytes(data, encoding);
       String contentType = encoding == ByteEncoding.BASE64 ? MediaType.APPLICATION_OCTET_STREAM : MediaType.TEXT_PLAIN;
       WebTarget target = prepareWebTarget(url, queryParams);
-      return executeRequest(target, "PUT", contentType, encodedData, headers, clazz);
+      return executeStringRequest(target, "PUT", contentType, encodedData, headers, clazz);
    }
 
    public <T> T putBytes(String url, byte[] data, ByteEncoding encoding, Class<T> clazz)

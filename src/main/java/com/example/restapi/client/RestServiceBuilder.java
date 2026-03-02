@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.ClientRequestFilter;
+import org.glassfish.jersey.jackson.JacksonFeature;
 
 /**
  * Builder för RestService som döljer JAX-RS Client och ClientBuilder.
@@ -222,6 +223,9 @@ public class RestServiceBuilder
       {
          client = clientBuilder.build();
       }
+
+      // Registrera JacksonFeature för automatisk JSON-serialisering/deserialisering
+      client.register(JacksonFeature.class);
 
       // Registrera alla filters på Client-instansen
       for (ClientRequestFilter filter : filters)

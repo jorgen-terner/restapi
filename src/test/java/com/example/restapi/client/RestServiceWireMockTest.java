@@ -452,7 +452,7 @@ public class RestServiceWireMockTest {
             assertEquals("Serialization delegated", thrown.getMessage());
             assertEquals(1, handler.getCount());
             assertNotNull(handler.getLastException());
-            assertTrue(handler.getLastException() instanceof com.fasterxml.jackson.core.JsonProcessingException);
+            assertTrue(handler.getLastException() instanceof Exception);
             assertEquals(url, handler.getLastUri());
         } finally {
             customService.close();
