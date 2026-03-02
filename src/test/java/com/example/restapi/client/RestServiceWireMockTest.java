@@ -1,8 +1,8 @@
 package com.example.restapi.client;
 
-import com.example.restapi.dto.UserVO;
-import com.example.restapi.dto.DataWithDateVO;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.example.restapi.vo.DataWithDateVO;
+import com.example.restapi.vo.UserVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

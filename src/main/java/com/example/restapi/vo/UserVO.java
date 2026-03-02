@@ -1,4 +1,4 @@
-package com.example.restapi.dto;
+package com.example.restapi.vo;
 
 /**
  * Data Transfer Object for User data.
@@ -43,7 +43,7 @@ public class UserVO {
 
     @Override
     public String toString() {
-        return "UserDto{" +
+        return "UserVO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +

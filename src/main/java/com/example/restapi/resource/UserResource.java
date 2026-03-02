@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.example.restapi.vo.UserVO;
 
 /**
  * REST-resurs för användarhantering.
@@ -28,7 +29,7 @@ public class UserResource
     * Hämtar en användare efter ID.
     * 
     * @param userId Användar-ID
-    * @return UserDto-objekt eller 404 om användaren inte finns
+   * @return UserVO-objekt eller 404 om användaren inte finns
     */
    @GET
    @Path("/{id}")
@@ -51,8 +52,8 @@ public class UserResource
    /**
     * Skapar en ny användare.
     * 
-    * @param user UserDto-objekt med användardata
-    * @return Skapad UserDto-objekt med genererat ID eller 400 vid validationsfel
+   * @param user UserVO-objekt med användardata
+   * @return Skapad UserVO-objekt med genererat ID eller 400 vid validationsfel
     */
    @POST
    public Response createUser(UserVO user)

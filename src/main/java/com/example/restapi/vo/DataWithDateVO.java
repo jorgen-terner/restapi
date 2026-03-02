@@ -1,4 +1,4 @@
-package com.example.restapi.dto;
+package com.example.restapi.vo;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
