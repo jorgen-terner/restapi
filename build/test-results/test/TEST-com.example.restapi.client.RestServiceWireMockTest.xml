@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.example.restapi.client.RestServiceWireMockTest" tests="20" skipped="0" failures="0" errors="0" timestamp="2026-03-02T15:24:18.814Z" hostname="TERNER" time="1.176">
+  <properties/>
+  <testcase name="testErrorHandlerExceptionTypeIsPropagated()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.792"/>
+  <testcase name="testGetRequestWithUrlEncodingSpecialCharacters()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.027"/>
+  <testcase name="testPostBytesWithRawEncoding()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.03"/>
+  <testcase name="testGetRequestWithEmailAddressSpecialCharacters()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <testcase name="testCustomErrorHandlerMapsErrors()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <testcase name="testDefaultErrorHandlerIsUsedWhenNotConfigured()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <testcase name="testHttp404ErrorThrowsException()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.015"/>
+  <testcase name="testGetRequestIgnoresUnknownJsonProperties()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <testcase name="testGetRequestWithCustomHeaders()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.021"/>
+  <testcase name="testSerializationExceptionIsDelegatedToErrorHandler()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.02"/>
+  <testcase name="testHttp500ErrorThrowsException()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <testcase name="testGetRequestWithDateDeserialization()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.043"/>
+  <testcase name="testPostJsonRequest()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <testcase name="testPostBytesWithHexEncoding()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <testcase name="testErrorHandlerCanSuppressErrors()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.015"/>
+  <testcase name="testGetRequestWithSwedishCharactersInQueryParam()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.015"/>
+  <testcase name="testCompleteWorkflowGetUpdateGet()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.021"/>
+  <testcase name="testGetRequestWithMultipleQueryParameters()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.018"/>
+  <testcase name="testPutJsonRequest()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.014"/>
+  <testcase name="testPostBytesWithBase64Encoding()" classname="com.example.restapi.client.RestServiceWireMockTest" time="0.016"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@4beeb0e{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@7123be6c{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@1f14f20c{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@681adc8f{STARTING}[11.0.15,sto=1000] @899ms
+[qtp574077658-55] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@681adc8f{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@681adc8f{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@1f14f20c{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@7123be6c{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@4beeb0e{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@7209ffb5{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@5e99b9c{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@2c7db926{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@7d97e06c{STARTING}[11.0.15,sto=1000] @1274ms
+[qtp842588842-70] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@7d97e06c{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@7d97e06c{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@2c7db926{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@5e99b9c{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@7209ffb5{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@32d5279{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@1c067c0d{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@60e06f7d{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@233db8e9{STARTING}[11.0.15,sto=1000] @1301ms
+[qtp1784551034-80] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@233db8e9{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@233db8e9{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@60e06f7d{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@1c067c0d{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@32d5279{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@4cfa83f9{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@321ca237{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@c689973{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@4570d7b6{STARTING}[11.0.15,sto=1000] @1332ms
+[qtp907080311-90] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@4570d7b6{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@4570d7b6{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@c689973{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@321ca237{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@4cfa83f9{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@649f25f3{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@2e62ead7{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@10e5bf9c{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@ab24484{STARTING}[11.0.15,sto=1000] @1348ms
+[qtp623330465-100] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@ab24484{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@ab24484{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@10e5bf9c{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@2e62ead7{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@649f25f3{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@4214ae8f{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@7ba93755{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@481558ce{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@5e230fc6{STARTING}[11.0.15,sto=1000] @1365ms
+[qtp524536503-111] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@5e230fc6{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@5e230fc6{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@481558ce{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@7ba93755{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@4214ae8f{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@3a479fda{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@8a6631b{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@36776c32{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@5529ff44{STARTING}[11.0.15,sto=1000] @1381ms
+[qtp355920448-122] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@5529ff44{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@5529ff44{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@36776c32{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@8a6631b{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@3a479fda{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@5c134052{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@69de5bed{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@773014d3{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@46fb0c33{STARTING}[11.0.15,sto=1000] @1396ms
+[qtp2045188238-132] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@46fb0c33{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@46fb0c33{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@773014d3{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@69de5bed{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@5c134052{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@6fe595dc{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@5af5d76f{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@6f6efa4f{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@72443081{STARTING}[11.0.15,sto=1000] @1411ms
+[qtp504509135-142] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@72443081{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@72443081{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@6f6efa4f{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@5af5d76f{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@6fe595dc{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@37a0ec3c{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@422ad5e2{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@4f59a516{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@2c26ba07{STARTING}[11.0.15,sto=1000] @1433ms
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@2c26ba07{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@2c26ba07{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@4f59a516{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@422ad5e2{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@37a0ec3c{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@796d33eb{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@5c059a68{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@385dfb63{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@28cd2c2{STARTING}[11.0.15,sto=1000] @1455ms
+[qtp898655932-162] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@28cd2c2{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@28cd2c2{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@385dfb63{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@5c059a68{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@796d33eb{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@1d15c0a1{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@15639d09{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@5b35c7d{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@31acfd4e{STARTING}[11.0.15,sto=1000] @1470ms
+[qtp770109884-171] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@31acfd4e{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@31acfd4e{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@5b35c7d{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@15639d09{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@1d15c0a1{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@2f054f70{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@6467ddc7{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@eed890d{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@553d2579{STARTING}[11.0.15,sto=1000] @1513ms
+[qtp8039120-182] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@553d2579{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@553d2579{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@eed890d{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@6467ddc7{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@2f054f70{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@110b7837{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@6ee88e21{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@5e1a986c{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@7418d76e{STARTING}[11.0.15,sto=1000] @1530ms
+[qtp974861985-192] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@7418d76e{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@7418d76e{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@5e1a986c{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@6ee88e21{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@110b7837{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@2cfe272f{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@2f95653f{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@445bce9a{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@72557746{STARTING}[11.0.15,sto=1000] @1546ms
+[qtp1411054469-202] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@72557746{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@72557746{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@445bce9a{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@2f95653f{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@2cfe272f{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@42fc4ac4{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@20a24edf{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@7d1c164a{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@784d9bc{STARTING}[11.0.15,sto=1000] @1562ms
+[qtp48063459-213] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@784d9bc{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@784d9bc{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@7d1c164a{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@20a24edf{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@42fc4ac4{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@349c4d1c{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@21edd891{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@1c98b4eb{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@bb3ecfe{STARTING}[11.0.15,sto=1000] @1576ms
+[qtp2133325211-223] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@bb3ecfe{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@bb3ecfe{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@1c98b4eb{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@21edd891{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@349c4d1c{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@2871ac91{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@3c54ddec{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@59c43561{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@601d6622{STARTING}[11.0.15,sto=1000] @1599ms
+[qtp431446827-233] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@601d6622{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@601d6622{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@59c43561{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@3c54ddec{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@2871ac91{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@34279b8a{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@687389a6{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@12abcd1e{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@2dbfa972{STARTING}[11.0.15,sto=1000] @1616ms
+[qtp347354124-243] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@2dbfa972{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@2dbfa972{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@12abcd1e{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@687389a6{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@34279b8a{/__admin,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.Server - jetty-11.0.15; built: 2023-04-11T18:37:53.775Z; git: 5bc5e562c8d05c5862505aebe5cf83a61bdbcb96; jvm 21.0.10+7-LTS
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@32ae8f27{/__admin,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler.ROOT - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.StubRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Started o.e.j.s.ServletContextHandler@75e80a97{/,null,AVAILABLE}
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Started NetworkTrafficServerConnector@5d850a25{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.Server - Started Server@67f946c3{STARTING}[11.0.15,sto=1000] @1630ms
+[qtp1733354369-253] INFO org.eclipse.jetty.server.handler.ContextHandler.__admin - RequestHandlerClass from context returned com.github.tomakehurst.wiremock.http.AdminRequestHandler. Normalized mapped under returned 'null'
+[Test worker] INFO org.eclipse.jetty.server.Server - Stopped Server@67f946c3{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.Server - Shutdown Server@67f946c3{STOPPING}[11.0.15,sto=1000]
+[Test worker] INFO org.eclipse.jetty.server.AbstractConnector - Stopped NetworkTrafficServerConnector@5d850a25{HTTP/1.1, (http/1.1, h2c)}{0.0.0.0:8080}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@75e80a97{/,null,STOPPED}
+[Test worker] INFO org.eclipse.jetty.server.handler.ContextHandler - Stopped o.e.j.s.ServletContextHandler@32ae8f27{/__admin,null,STOPPED}
+]]></system-err>
+</testsuite>

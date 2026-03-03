@@ -1,80 +1,65 @@
-# RestAPI – Java HTTP Client with JAX-RS Filter Support
+# RestAPI – Java HTTP-klient med stöd för JAX-RS-filter
 
-A lightweight REST client library built on the Jakarta JAX-RS Client API with support for `jakarta.ws.rs.client.ClientRequestFilter` for header manipulation, logging, and request interception.
+Ett REST-klientbibliotek byggt på Jakarta JAX-RS Client API med stöd för `jakarta.ws.rs.client.ClientRequestFilter` för header-hantering, loggning och request-interception.
 
-## Features
+## Funktioner
 
-- **JAX-RS Client API**: Implementation-agnostic client built with `jakarta.ws.rs.client.ClientBuilder`.
-- **JAX-RS Filter Support**: Register `ClientRequestFilter` instances to intercept and modify requests before sending.
-- **Easy Configuration**: Builder methods for connect/read timeouts (millis or `Duration`).
-- **Automatic Serialization**: JSON request/response serialization via Jackson `ObjectMapper`.
-- **Built-in Support**: GET, POST, PUT with JSON or byte payloads.
-- **No Built-in Logging**: RestService has no logging dependencies - add `LoggingFilter` if you need logging.
+- **JAX-RS Client API**: Implementationsagnostisk klient byggd med `jakarta.ws.rs.client.ClientBuilder`.
+- **Stöd för JAX-RS-filter**: Registrera `ClientRequestFilter` för att fånga och modifiera requests innan de skickas.
+- **Enkel konfigurering**: Builder-metoder för connect/read-timeout (millisekunder eller `Duration`).
+- **Automatisk serialisering**: JSON-serialisering/deserialisering via Jackson `ObjectMapper`.
+- **Inbyggt stöd**: GET, POST, PUT med JSON eller byte-payload.
+- **Ingen inbyggd loggning**: `RestService` har inga loggningsberoenden – registrera `LoggingFilter` vid behov.
 
-## Build & Run
+## Användningsexempel
 
-### With Gradle
-
-```bash
-./gradlew build
-./gradlew test
-```
-
-### Compile and Run
-
-```bash
-java -jar build/libs/restapi-0.1.0-all.jar
-```
-
-## Usage Examples
-
-### Basic REST Client
+### Grundläggande REST-klient
 
 ```java
 import com.example.restapi.client.RestService;
 import com.example.restapi.client.RestServiceBuilder;
 import java.time.Duration;
 
-// Create with default settings
+// Skapa med standardinställningar
 RestService client = RestServiceBuilder.create().build();
 
-// Or with custom timeouts (millis)
+// Eller med anpassade timeouts (millisekunder)
 RestService client = RestServiceBuilder.create()
     .connectTimeout(5000)
     .readTimeout(10000)
     .build();
 
-// Or with custom timeouts (Duration)
+// Eller med anpassade timeouts (Duration)
 RestService client = RestServiceBuilder.create()
     .connectTimeout(Duration.ofSeconds(5))
     .readTimeout(Duration.ofSeconds(10))
     .build();
 
-// GET request
-MyDto result = client.get("http://api.example.com/items/1", MyDto.class);
+// GET-request
+MyVO result = client.get("http://api.example.com/items/1", MyVO.class);
 
-// GET with query parameters
+// GET med query-parametrar
 Map<String, String> params = Map.of("page", "1", "size", "10");
-MyDto result = client.get("http://api.example.com/items", null, params, MyDto.class);
+MyVO result = client.get("http://api.example.com/items", null, params, MyVO.class);
 
-// POST with object (converted to JSON automatically)
-MyDto requestData = new MyDto("John", 30);
-MyDto created = client.post("http://api.example.com/items", requestData, MyDto.class);
+// POST med objekt (konverteras automatiskt till JSON)
+MyVO requestData = new MyVO("John", 30);
+MyVO created = client.post("http://api.example.com/items", requestData, MyVO.class);
 
-// PUT with object (converted to JSON automatically)
-MyDto updateData = new MyDto("Jane", 31);
-MyDto updated = client.put("http://api.example.com/items/1", updateData, MyDto.class);
+// PUT med objekt (konverteras automatiskt till JSON)
+MyVO updateData = new MyVO("Jane", 31);
+MyVO updated = client.put("http://api.example.com/items/1", updateData, MyVO.class);
 
-// POST binary data (base64 encoded)
+// POST med binärdata (base64-kodad)
 byte[] data = "...".getBytes();
-MyDto result = client.postBytes("http://api.example.com/files", data, 
-    RestService.ByteEncoding.BASE64, MyDto.class);
+MyVO result = client.postBytes("http://api.example.com/files", data,
+    RestService.ByteEncoding.BASE64, MyVO.class);
 
-// Always close when done
+// Stäng alltid när du är klar
 client.close();
 ```
 
-### Dependency Injection with Custom Timeouts
+### Dependency Injection med anpassade timeouts
 
 ```java
 import jakarta.inject.Inject;
@@ -94,63 +79,19 @@ public class MyService {
 }
 ```
 
-Configure timeouts via system properties:
+### Anpassad felhantering
 
-```
--Drestclient.connect.timeout=5000
--Drestclient.read.timeout=15000
-```
-
-### Custom Error Handling
-
-**RestService** uses an `ErrorHandler` to map HTTP errors to custom exceptions. By default, it throws `RuntimeException` for all errors. Register your own handler to customize error mapping:
+`RestService` använder en `ErrorHandler` för att mappa HTTP-fel till egna exceptions. Som standard kastas `RuntimeException` för alla fel. Registrera en egen handler för att anpassa felmappning:
 
 ```java
-import com.example.restapi.client.RestService;
-import com.example.restapi.client.RestServiceBuilder;
-import com.example.restapi.client.ErrorHandler;
-
-// Simple lambda-based error handler
-RestService client = RestServiceBuilder.create()
-    .errorHandler((statusCode, responseBody, uri) -> {
-        switch (statusCode) {
-            case 401:
-                throw new UnauthorizedException("Not authenticated");
-            case 403:
-                throw new ForbiddenException("Access denied");
-            case 404:
-                throw new NotFoundException("Resource not found at " + uri);
-            case 500:
-            case 502:
-            case 503:
-                throw new ServerException("Server error: " + statusCode);
-            default:
-                throw new RestException("HTTP " + statusCode + ": " + responseBody);
-        }
-    })
-    .build();
-
-// Or implement ErrorHandler interface
-public class CustomErrorHandler implements ErrorHandler {
-    @Override
-    public void handleError(int statusCode, String responseBody, String uri) {
-        // Parse error response, log details, or customize behavior
-        if (statusCode >= 500) {
-            // Retry logic or circuit breaker here
-            throw new RetryableException("Server error, retry later");
-        }
-        throw new RestException("HTTP " + statusCode);
-    }
-}
-
-// Usage
+// Användning
 RestService client = RestServiceBuilder.create()
     .errorHandler(new CustomErrorHandler())
     .connectTimeout(Duration.ofSeconds(5))
     .build();
 ```
 
-### Adding Request Headers via Filter
+### Lägg till request-headrar via filter
 
 ```java
 import jakarta.ws.rs.client.ClientRequestFilter;
@@ -158,7 +99,7 @@ import java.util.UUID;
 import com.example.restapi.client.RestService;
 import com.example.restapi.client.RestServiceBuilder;
 
-// Simple lambda filter - add trace ID and authorization
+// Enkelt lambda-filter - lägg till trace-id och auth-header
 ClientRequestFilter authFilter = ctx -> {
     ctx.getHeaders().add("X-Trace-Id", UUID.randomUUID().toString());
     ctx.getHeaders().add("Authorization", "Bearer your-token-here");
@@ -168,142 +109,18 @@ RestService client = RestServiceBuilder.create()
     .registerFilter(authFilter)
     .build();
 
-// All subsequent requests will include these headers
-MyDto result = client.get("http://api.example.com/items", MyDto.class);
+// Alla efterföljande requests innehåller dessa headrar
+
 ```
 
-### Comprehensive Logging Filter with SLF4J
+### Loggning
 
-**Note**: `RestService` has no built-in logging. Register `LoggingFilter` to enable request/response logging.
+**Obs**: `RestService` har ingen inbyggd loggning. Registrera `LoggingFilter` för request/response-loggning.
+Det finns ett färdigt filter som använder slf4j: SLF4JLoggingFilter.
 
 ```java
-import jakarta.ws.rs.client.ClientRequestFilter;
-import jakarta.ws.rs.client.ClientRequestContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import java.io.IOException;
-
-public class LoggingFilter implements ClientRequestFilter {
-    private static final Logger LOG = LoggerFactory.getLogger(LoggingFilter.class);
-
-    @Override
-    public void filter(ClientRequestContext ctx) throws IOException {
-        // Log request line
-        LOG.info("→ {} {}", ctx.getMethod(), ctx.getUri());
-        
-        // Log request headers
-        ctx.getHeaders().forEach((name, values) -> {
-            values.forEach(value -> LOG.debug("  {}: {}", name, value));
-        });
-
-        // Log entity if present
-        if (ctx.hasEntity()) {
-            Object entity = ctx.getEntity();
-            LOG.debug("  Body: {}", entity);
-        }
-    }
-}
-
-// Usage
+// Användning
 RestService client = RestServiceBuilder.create()
-    .registerFilter(new LoggingFilter())
+    .registerFilter(new MyLoggingFilter())
     .build();
 ```
-
-### Chaining Multiple Filters
-
-Filters execute in registration order—combine logging, auth, tracing:
-
-```java
-RestService client = RestServiceBuilder.create()
-    // 1. Add tracing
-    .registerFilter(ctx -> 
-        ctx.getHeaders().add("X-Request-Id", UUID.randomUUID().toString())
-    )
-
-    // 2. Add comprehensive logging
-    .registerFilter(new LoggingFilter())
-
-    // 3. Add authorization token
-    .registerFilter(ctx -> 
-        ctx.getHeaders().add("Authorization", "Bearer " + getAuthToken())
-    )
-    .build();
-
-// All filters applied automatically
-MyDto result = client.get("http://api.example.com/items", MyDto.class);
-```
-
-### Early Response (Abort) in Filters
-
-Short-circuit a request and return a cached response:
-
-```java
-ClientRequestFilter cacheFilter = ctx -> {
-    String url = ctx.getUri().toString();
-    Object cached = getFromCache(url);
-    if (cached != null) {
-        LOG.debug("Cache hit for {}", url);
-        // Abort request and return cached response
-        Response cachedResponse = Response.ok(cached).build();
-        ctx.abortWith(cachedResponse);
-    }
-};
-
-client.registerClientRequestFilter(cacheFilter);
-```
-
-## Error Handling
-
-```java
-try {
-    MyDto result = client.get("http://api.example.com/items/999", MyDto.class);
-} catch (RuntimeException e) {
-    // Wraps IO errors, InterruptedException, and HTTP errors (4xx, 5xx)
-    LOG.error("REST request failed", e);
-}
-```
-
-### Testing with WireMock
-
-See the integration tests for examples using WireMock:
-
-- [src/test/java/com/example/restapi/client/RestServiceWireMockTest.java](src/test/java/com/example/restapi/client/RestServiceWireMockTest.java)
-
-## Architecture & Design Notes
-
-- **Implementation-Agnostic**: Uses `jakarta.ws.rs.client.ClientBuilder` under the hood.
-- **Filter Support**: `ClientRequestFilter` instances registered on the client.
-- **Timeout Control**: Connect/read timeouts via builder methods or implementation-specific properties.
-
-## Dependencies
-
-Core:
-- `jakarta.ws.rs:jakarta.ws.rs-api` – JAX-RS API (interfaces only)
-- `com.fasterxml.jackson.core:jackson-databind` – JSON serialization
-
-Logging:
-- `org.slf4j:slf4j-api` – SLF4J interface
-- `org.slf4j:slf4j-simple` (or your implementation) – SLF4J backing
-
-Test:
-- `org.junit.jupiter:junit-jupiter` – JUnit 5
-- `org.mockito:mockito-core` – Mocking
-
-## Project Structure
-
-```
-src/main/java/com/example/restapi/client/
-├── RestService.java              # Main REST client
-└── ... (other classes)
-
-src/test/java/com/example/restapi/client/
-└── RestServiceWireMockTest.java  # Integration tests
-build.gradle                        # Gradle build config
-```
-
-## Notes
-
-- Timeout properties can be configured via `RestServiceBuilder` methods or implementation-specific properties.
-- Response status codes outside 200–299 range throw `RuntimeException` with HTTP status and body details.
-- Entity serialization follows Jackson defaults; customize by configuring the `ObjectMapper` within `RestService` if needed.
